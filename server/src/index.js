@@ -432,6 +432,7 @@ app.get(
     });
   }),
 );
+app.get("/api/health", (_req, res) => res.json({ ok: true }));
 app.use("/api", auth, (req, res, next) =>
   req.user.mustChangePassword
     ? fail(res, 403, "Önce şifrenizi değiştirin.")
@@ -1862,7 +1863,6 @@ app.get(
     });
   }),
 );
-app.get("/api/health", (_req, res) => res.json({ ok: true }));
 app.use((err, req, res, next) => {
   if (err instanceof z.ZodError)
     return fail(res, 400, err.issues.map((x) => x.message).join(", "));
