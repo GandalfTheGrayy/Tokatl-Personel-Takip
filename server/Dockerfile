@@ -9,4 +9,4 @@ COPY src ./src
 RUN mkdir -p /data && chown node:node /data
 USER node
 EXPOSE 3000
-CMD ["sh","-c","npx prisma db push && node prisma/seed.js && node src/index.js"]
+CMD ["sh","-c","npx prisma db push --skip-generate && node prisma/seed.js && node src/index.js"]
