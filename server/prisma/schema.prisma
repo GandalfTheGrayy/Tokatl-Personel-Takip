@@ -1,123 +1,211 @@
 generator client {
   provider = "prisma-client-js"
 }
+
 datasource db {
   provider = "postgresql"
-  url = env("DATABASE_URL")
+  url      = env("DATABASE_URL")
 }
 
 enum RoleCode {
+  GOD
   ADMIN
   SUPERVISOR
   STAFF
 }
+
 enum RecordStatus {
   PENDING
   APPROVED
   REJECTED
 }
+
 enum ArrivalStatus {
   ON_TIME
   LATE
   VERY_LATE
 }
 
+enum MemberClass {
+  ACADEMY
+  LORD
+}
+
+enum OutingKind {
+  OUTING
+  PERMISSION
+}
+
+enum OutingSource {
+  LIVE
+  HISTORICAL
+}
+
 model Role {
-  id Int @id @default(autoincrement())
-  code RoleCode @unique
-  name String
+  id    Int      @id @default(autoincrement())
+  code  RoleCode @unique
+  name  String
   users User[]
 }
+
 model User {
-  id String @id @default(uuid())
-  username String @unique
-  name String
-  passwordHash String
-  mustChangePassword Boolean @default(true)
-  active Boolean @default(true)
-  roleId Int
-  role Role @relation(fields: [roleId], references: [id])
-  attendance Attendance[]
-  leaves LeaveRequests[]
-  approvals Approvals[]
-  notifications Notifications[]
-  logs AuditLogs[]
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id                 String          @id @default(uuid())
+  username           String          @unique
+  name               String
+  profilePhoto       String?
+  passwordHash       String
+  mustChangePassword Boolean         @default(true)
+  active             Boolean         @default(true)
+  roleId             Int
+  role               Role            @relation(fields: [roleId], references: [id])
+  customRoleId       String?
+  customRole         CustomRole?     @relation(fields: [customRoleId], references: [id], onDelete: SetNull)
+  memberClass        MemberClass?
+  presence           Presence?
+  attendance         Attendance[]
+  leaves             LeaveRequests[]
+  outings            Outing[]        @relation("OutingOwner")
+  approvedOutings    Outing[]        @relation("OutingApprover")
+  approvals          Approvals[]
+  notifications      Notifications[]
+  logs               AuditLogs[]
+  createdAt          DateTime        @default(now())
+  updatedAt          DateTime        @updatedAt
 }
+
+model CustomRole {
+  id          String   @id @default(uuid())
+  name        String   @unique
+  description String   @default("")
+  color       String   @default("#2878a5")
+  permissions Json     @default("[]")
+  active      Boolean  @default(true)
+  users       User[]
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model Presence {
+  id         String   @id @default(uuid())
+  userId     String   @unique
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  lastSeenAt DateTime @default(now())
+
+  @@index([lastSeenAt])
+}
+
+model Outing {
+  id           String       @id @default(uuid())
+  userId       String
+  user         User         @relation("OutingOwner", fields: [userId], references: [id])
+  day          String
+  startedAt    DateTime
+  endedAt      DateTime?
+  kind         OutingKind   @default(OUTING)
+  category     String?
+  note         String       @default("")
+  source       OutingSource @default(LIVE)
+  status       RecordStatus @default(PENDING)
+  decisionNote String?
+  approvedById String?
+  approvedBy   User?        @relation("OutingApprover", fields: [approvedById], references: [id], onDelete: SetNull)
+  approvedAt   DateTime?
+  createdAt    DateTime     @default(now())
+  updatedAt    DateTime     @updatedAt
+
+  @@index([userId, day])
+  @@index([status, createdAt])
+  @@index([startedAt])
+}
+
 model Attendance {
-  id String @id @default(uuid())
-  userId String
-  user User @relation(fields: [userId], references: [id])
-  day String
+  id          String        @id @default(uuid())
+  userId      String
+  user        User          @relation(fields: [userId], references: [id])
+  day         String
   checkedInAt DateTime
-  note String @default("")
-  status RecordStatus @default(PENDING)
-  arrival ArrivalStatus
-  approvals Approvals[]
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  note        String        @default("")
+  status      RecordStatus  @default(PENDING)
+  arrival     ArrivalStatus
+  approvals   Approvals[]
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+
   @@unique([userId, day])
   @@index([day, status])
 }
+
 model LeaveRequests {
-  id String @id @default(uuid())
-  userId String
-  user User @relation(fields: [userId], references: [id])
-  day String
-  category String
-  note String @default("")
-  status RecordStatus @default(PENDING)
+  id        String       @id @default(uuid())
+  userId    String
+  user      User         @relation(fields: [userId], references: [id])
+  day       String
+  category  String
+  note      String       @default("")
+  status    RecordStatus @default(PENDING)
   approvals Approvals[]
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  createdAt DateTime     @default(now())
+  updatedAt DateTime     @updatedAt
+
   @@unique([userId, day])
   @@index([day, status])
 }
+
 model Approvals {
-  id String @id @default(uuid())
-  actorId String
-  actor User @relation(fields: [actorId], references: [id])
+  id           String         @id @default(uuid())
+  actorId      String
+  actor        User           @relation(fields: [actorId], references: [id])
   attendanceId String?
-  attendance Attendance? @relation(fields: [attendanceId], references: [id], onDelete: SetNull)
-  leaveId String?
-  leave LeaveRequests? @relation(fields: [leaveId], references: [id], onDelete: SetNull)
-  decision RecordStatus
-  reason String?
-  createdAt DateTime @default(now())
+  attendance   Attendance?    @relation(fields: [attendanceId], references: [id], onDelete: SetNull)
+  leaveId      String?
+  leave        LeaveRequests? @relation(fields: [leaveId], references: [id], onDelete: SetNull)
+  decision     RecordStatus
+  reason       String?
+  createdAt    DateTime       @default(now())
 }
+
 model WorkSchedule {
-  id Int @id @default(1)
-  startTime String @default("08:00")
-  endTime String @default("17:00")
-  toleranceMinutes Int @default(5)
-  veryLateMinutes Int @default(30)
-  timezone String @default("Europe/Istanbul")
-  updatedAt DateTime @updatedAt
+  id               Int      @id @default(1)
+  startTime        String   @default("08:00")
+  endTime          String   @default("17:00")
+  toleranceMinutes Int      @default(5)
+  veryLateMinutes  Int      @default(30)
+  timezone         String   @default("Europe/Istanbul")
+  updatedAt        DateTime @updatedAt
 }
+
 model Notifications {
-  id String @id @default(uuid())
-  userId String
-  user User @relation(fields: [userId], references: [id])
-  message String
-  readAt DateTime?
-  createdAt DateTime @default(now())
+  id        String    @id @default(uuid())
+  userId    String
+  user      User      @relation(fields: [userId], references: [id])
+  message   String
+  readAt    DateTime?
+  createdAt DateTime  @default(now())
 }
+
 model Settings {
-  id Int @id @default(1)
-  institutionName String @default("Kurum Yoklama")
-  logoData String?
-  leaveCategories Json
-  updatedAt DateTime @updatedAt
+  id                     Int      @id @default(1)
+  institutionName        String   @default("Tokatlı Next Gen")
+  logoData               String?
+  leaveCategories        Json
+  permissionCategories   Json     @default("[]")
+  eveningStartTime       String   @default("18:00")
+  streakMinMinutes       Int      @default(30)
+  rankingWindowDays      Int      @default(30)
+  maxOpenOutingHours     Int      @default(18)
+  allowHistoricalEntries Boolean  @default(true)
+  updatedAt              DateTime @updatedAt
 }
+
 model AuditLogs {
-  id String @id @default(uuid())
-  actorId String?
-  actor User? @relation(fields: [actorId], references: [id], onDelete: SetNull)
-  action String
-  target String?
-  ip String?
-  detail Json?
+  id        String   @id @default(uuid())
+  actorId   String?
+  actor     User?    @relation(fields: [actorId], references: [id], onDelete: SetNull)
+  action    String
+  target    String?
+  ip        String?
+  detail    Json?
   createdAt DateTime @default(now())
+
   @@index([createdAt])
 }

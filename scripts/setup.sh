@@ -5,9 +5,13 @@ if [ ! -f .env ]; then
   umask 077
   db_password="$(openssl rand -hex 24)"
   jwt_secret="$(openssl rand -hex 48)"
+  god_password="$(openssl rand -base64 24 | tr -d '\n')"
   cat > .env <<ENV
 DB_PASSWORD=$db_password
 JWT_SECRET=$jwt_secret
+GOD_USERNAME=muharrem
+GOD_NAME=Muharrem
+GOD_PASSWORD=$god_password
 SITE_ADDRESS=localhost
 ENV
   printf 'Güvenli .env oluşturuldu. Alan adınız varsa SITE_ADDRESS değerini düzenleyin.\n'
