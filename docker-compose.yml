@@ -24,9 +24,6 @@ services:
       GOD_USERNAME: ${GOD_USERNAME:-muharrem}
       GOD_NAME: ${GOD_NAME:-Muharrem}
       GOD_PASSWORD: ${GOD_PASSWORD:?Set GOD_PASSWORD in .env}
-      CREDENTIALS_FILE: /data/ilk-hesaplar.txt
-    volumes:
-      - app_data:/data
     depends_on:
       db:
         condition: service_healthy
@@ -44,6 +41,5 @@ services:
       - server
 volumes:
   postgres_data:
-  app_data:
   caddy_data:
   caddy_config:

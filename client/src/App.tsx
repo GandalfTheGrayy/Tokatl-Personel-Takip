@@ -104,7 +104,12 @@ function DavidStar({ size = 15 }: { size?: number }) {
 function BrandSignature({ compact = false }: { compact?: boolean }) {
   return (
     <span className={`brand-signature ${compact ? "compact" : ""}`}>
-      Made by <b>Muharrem Pehlevan</b> <DavidStar size={compact ? 13 : 15} />
+      <span className="signature-star">
+        <DavidStar size={compact ? 13 : 15} />
+      </span>
+      <span>
+        Made by <b>Muharrem Pehlevan</b>
+      </span>
     </span>
   );
 }
@@ -212,7 +217,7 @@ function Notice({ message, clear }: { message: string; clear: () => void }) {
   return message ? (
     <div
       role="alert"
-      className="fixed bottom-5 right-5 left-5 sm:left-auto z-[60] sm:max-w-md bg-navy text-white rounded-xl shadow-xl p-4 flex gap-4 items-center"
+      className="premium-notice fixed bottom-5 right-5 left-5 sm:left-auto z-[60] sm:max-w-md bg-navy text-white rounded-xl shadow-xl p-4 flex gap-4 items-center"
     >
       <span className="flex-1">{message}</span>
       <button onClick={clear} aria-label="Kapat">
@@ -267,49 +272,68 @@ function Login({
     }
   }
   return (
-    <div className="min-h-[100dvh] flex">
-      <div className="hidden lg:flex lg:w-[48%] bg-[#153657] text-white relative overflow-hidden p-16 flex-col justify-between">
+    <div className="login-shell min-h-[100dvh] flex">
+      <div className="login-atmosphere" aria-hidden="true">
+        <span />
+        <span />
+        <span />
+      </div>
+      <div className="login-showcase hidden lg:flex lg:w-[48%] text-white relative overflow-hidden p-16 flex-col justify-between">
+        <div className="login-grid" aria-hidden="true" />
+        <div className="login-aurora login-aurora-one" aria-hidden="true" />
+        <div className="login-aurora login-aurora-two" aria-hidden="true" />
         <div className="relative z-10 flex items-center gap-3">
-          <div className="h-11 w-11 bg-white/15 rounded-xl grid place-items-center">
+          <div className="premium-emblem h-12 w-12 bg-white/15 rounded-2xl grid place-items-center">
             <img
               src={logo || DEFAULT_EMBLEM}
-              className="h-10 w-10 object-contain"
+              className="h-11 w-11 object-contain"
               alt="Tokatlı Next Gen kirpi amblemi"
             />
           </div>
-          <span className="font-bold tracking-wide text-lg">{name}</span>
+          <div>
+            <span className="font-black tracking-wide text-lg block">{name}</span>
+            <span className="text-[10px] tracking-[.28em] text-cyan-100/70">PRIVATE NETWORK</span>
+          </div>
         </div>
         <div className="relative z-10 max-w-lg">
-          <div className="w-14 h-1 bg-[#5fd0be] mb-8" />
-          <h1 className="text-5xl font-bold leading-tight mb-6">
-            Mahalle hareketlerinde
+          <div className="login-kicker"><span /> NEXT GENERATION CONTROL</div>
+          <h1 className="login-display text-5xl font-black leading-tight mb-6">
+            Mahallenin ritmi,
             <br />
-            net bir görünüm.
+            tek merkezde.
           </h1>
           <p className="text-blue-100 text-lg leading-relaxed">
-            Çıkış, dönüş, izin ve yetkili onayları tek bir güvenli alanda.
+            Çıkış, dönüş, izin ve yetkili onayları; kesintisiz, güvenli ve canlı.
           </p>
+          <div className="login-feature-row">
+            <span><Radio size={15} /> Canlı durum</span>
+            <span><ShieldCheck size={15} /> Güvenli onay</span>
+            <span><Trophy size={15} /> Tier sistemi</span>
+          </div>
         </div>
-        <div className="relative z-10 text-sm text-blue-200 flex flex-col gap-2">
+        <div className="relative z-10 text-sm text-blue-200 flex flex-col gap-3">
           <span>
             NEXT GEN MAHALLE SİSTEMİ <span className="mx-2">/</span> GÜVENLİ
             ERİŞİM
           </span>
-          <BrandSignature />
+          <div className="signature-plaque"><BrandSignature /></div>
         </div>
-        <div className="absolute -right-36 -bottom-36 h-[560px] w-[560px] rounded-full border-[95px] border-white/[.045]" />
+        <div className="login-orbit" aria-hidden="true" />
       </div>
-      <div className="flex-1 flex items-start sm:items-center justify-center p-4 py-6 sm:p-10 overflow-y-auto">
-        <div className="w-full max-w-md">
+      <div className="login-form-panel flex-1 flex items-start sm:items-center justify-center p-4 py-6 sm:p-10 overflow-y-auto">
+        <div className="login-form-card w-full max-w-md">
           <div className="lg:hidden flex items-center gap-3 mb-7 text-navy">
-            <div className="h-11 w-11 bg-navy text-white rounded-xl grid place-items-center">
+            <div className="premium-emblem h-12 w-12 bg-navy text-white rounded-2xl grid place-items-center">
               <img
                 src={logo || DEFAULT_EMBLEM}
-                className="h-10 w-10 object-contain"
+                className="h-11 w-11 object-contain"
                 alt="Tokatlı Next Gen kirpi amblemi"
               />
             </div>
-            <b className="truncate">{name}</b>
+            <div className="min-w-0">
+              <b className="truncate block">{name}</b>
+              <span className="text-[10px] tracking-[.22em] text-slate-400">NEXT GEN ACCESS</span>
+            </div>
           </div>
           <div className="grid grid-cols-2 bg-slate-100 rounded-xl p-1 mb-7">
             <button
@@ -471,7 +495,7 @@ function Login({
             </p>
           )}
           <div className="lg:hidden mt-7 text-slate-500 flex justify-center">
-            <BrandSignature compact />
+            <div className="signature-plaque light"><BrandSignature compact /></div>
           </div>
         </div>
       </div>
@@ -719,15 +743,19 @@ export default function App() {
   ];
   const current = links.find((x) => x.id === page)?.title || "Onay İşlemleri";
   return (
-    <div className="min-h-screen flex">
+    <div className="app-shell min-h-screen flex">
+      <div className="app-ambient" aria-hidden="true">
+        <span />
+        <span />
+      </div>
       <aside
-        className={`${menu ? "fixed inset-y-0 left-0 z-40" : "hidden"} lg:flex flex-col w-[250px] shrink-0 bg-[#173a60] text-white min-h-screen`}
+        className={`premium-sidebar ${menu ? "fixed inset-y-0 left-0 z-40" : "hidden"} lg:flex flex-col w-[264px] shrink-0 text-white min-h-screen`}
       >
-        <div className="h-20 px-6 flex items-center gap-3 border-b border-white/10">
-          <div className="w-10 h-10 rounded-xl bg-white/15 grid place-items-center">
+        <div className="sidebar-brand h-24 px-6 flex items-center gap-3 border-b border-white/10">
+          <div className="premium-emblem w-12 h-12 rounded-2xl bg-white/15 grid place-items-center">
             <img
               src={settings?.logoData || DEFAULT_EMBLEM}
-              className="w-10 h-10 object-contain"
+              className="w-11 h-11 object-contain"
               alt="Tokatlı Next Gen kirpi amblemi"
             />
           </div>
@@ -746,7 +774,7 @@ export default function App() {
         <div className="px-4 pt-7 text-[11px] font-semibold uppercase tracking-widest text-blue-200/70 mb-3">
           ÇALIŞMA ALANI
         </div>
-        <nav className="px-3 space-y-1 flex-1">
+        <nav className="premium-nav px-3 space-y-1 flex-1">
           {links
             .filter(
               (x) =>
@@ -761,9 +789,9 @@ export default function App() {
                   P(x.id);
                   M(false);
                 }}
-                className={`w-full flex items-center gap-3 px-3.5 py-3 rounded-lg text-sm text-left transition ${page === x.id ? "bg-white/15 text-white font-semibold border-l-[3px] border-[#62d0b3]" : "text-blue-100 hover:bg-white/10"}`}
+                className={`nav-link w-full flex items-center gap-3 px-3.5 py-3 rounded-xl text-sm text-left transition ${page === x.id ? "active text-white font-semibold" : "text-blue-100"}`}
               >
-                <x.icon size={18} />
+                <span className="nav-icon"><x.icon size={18} /></span>
                 <span>{x.title}</span>
                 {x.id === "approvals" && pending > 0 && (
                   <span className="ml-auto text-[11px] bg-[#d5a443] text-[#253544] px-2 py-0.5 rounded-full font-bold">
@@ -773,7 +801,7 @@ export default function App() {
               </button>
             ))}
         </nav>
-        <div className="p-4 border-t border-white/10">
+        <div className="sidebar-profile p-4 border-t border-white/10">
           <div className="flex gap-3 items-center p-2">
             <div className="h-9 w-9 rounded-full bg-[#27608e] grid place-items-center text-sm font-bold overflow-hidden">
               {user.profilePhoto ? (
@@ -797,8 +825,8 @@ export default function App() {
           >
             <LogOut size={16} /> Çıkış yap
           </button>
-          <div className="mt-4 px-2 text-blue-200/80">
-            <BrandSignature compact />
+          <div className="mt-4 px-2 text-blue-100">
+            <div className="signature-plaque sidebar"><BrandSignature compact /></div>
           </div>
         </div>
       </aside>
@@ -808,8 +836,8 @@ export default function App() {
           onClick={() => M(false)}
         />
       )}
-      <div className="flex-1 min-w-0">
-        <header className="h-20 px-5 md:px-9 bg-white border-b border-slate-200 flex items-center justify-between gap-4">
+      <div className="workspace flex-1 min-w-0">
+        <header className="premium-header h-20 px-5 md:px-9 bg-white border-b border-slate-200 flex items-center justify-between gap-4">
           <div className="flex items-center gap-3">
             <button
               className="lg:hidden p-2"
@@ -828,6 +856,9 @@ export default function App() {
             </div>
           </div>
           <div className="flex items-center gap-2 sm:gap-4">
+            <div className="hidden xl:flex header-signature">
+              <BrandSignature compact />
+            </div>
             <span className="hidden md:block text-sm text-slate-500">
               {dateTR(day)}
             </span>
@@ -895,8 +926,8 @@ export default function App() {
             </div>
           </div>
         </header>
-        <main className="p-5 md:p-9 max-w-[1500px] mx-auto">
-          <div className="mb-7">
+        <main className="app-main p-5 md:p-9 max-w-[1500px] mx-auto">
+          <div className="page-intro mb-7">
             <p className="text-xs font-bold text-[#26739f] dark:text-[#7cb9e0] uppercase tracking-[.16em] mb-2">
               {user.customRole
                 ? `${user.customRole.name.toLocaleUpperCase("tr-TR")} ALANI`
@@ -923,6 +954,7 @@ export default function App() {
                     : "Kayıtlar ve işlemler burada görüntülenir."}
             </p>
           </div>
+          <div key={page} className="page-stage">
           {page === "home" &&
             (!can(user, "dashboard.view") ? (
               <OutingHome
@@ -968,6 +1000,20 @@ export default function App() {
           )}
           {page === "reports" && <ReportsView day={day} />}
           {page === "audit" && <AuditView />}
+          </div>
+          <footer className="creator-footer">
+            <div className="creator-footer-emblem">
+              <img
+                src={settings?.logoData || DEFAULT_EMBLEM}
+                alt=""
+              />
+            </div>
+            <div>
+              <BrandSignature />
+              <p>Tokatlı Next Gen · Mahalle yönetim ağı</p>
+            </div>
+            <span className="creator-footer-code">MP / NEXT GEN</span>
+          </footer>
         </main>
       </div>
       <Notice message={toast} clear={() => T("")} />
