@@ -639,6 +639,18 @@ export default function App() {
     const timer = window.setInterval(ping, 45000);
     return () => window.clearInterval(timer);
   }, [user?.id, user?.mustChangePassword]);
+  useEffect(() => {
+    if (!user || user.mustChangePassword) return;
+    const sync = () => {
+      if (document.visibilityState === "visible") refresh();
+    };
+    const timer = window.setInterval(sync, 15000);
+    document.addEventListener("visibilitychange", sync);
+    return () => {
+      window.clearInterval(timer);
+      document.removeEventListener("visibilitychange", sync);
+    };
+  }, [user?.id, user?.mustChangePassword]);
   async function logout() {
     try {
       await post("/auth/logout", {});
@@ -1449,18 +1461,23 @@ function OutingAdminHome({
   } | null>(null);
   const [leaders, setLeaders] = useState<RankingRow[]>([]);
   useEffect(() => {
-    api<typeof overview>("/outings/overview")
-      .then(setOverview)
-      .catch(() => {});
-    api<{ rows: RankingRow[] }>("/rankings")
-      .then((x) =>
-        setLeaders(
-          x.rows
-            .sort((a, b) => b.durationMinutes - a.durationMinutes)
-            .slice(0, 3),
-        ),
-      )
-      .catch(() => {});
+    const load = () => {
+      api<typeof overview>("/outings/overview")
+        .then(setOverview)
+        .catch(() => {});
+      api<{ rows: RankingRow[] }>("/rankings")
+        .then((x) =>
+          setLeaders(
+            x.rows
+              .sort((a, b) => b.durationMinutes - a.durationMinutes)
+              .slice(0, 3),
+          ),
+        )
+        .catch(() => {});
+    };
+    load();
+    const timer = window.setInterval(load, 15000);
+    return () => window.clearInterval(timer);
   }, []);
   return (
     <>
@@ -1605,6 +1622,8 @@ function OutingApprovals({
       .catch((e) => notify(e.message));
   useEffect(() => {
     load();
+    const timer = window.setInterval(load, 10000);
+    return () => window.clearInterval(timer);
   }, [tab]);
   async function decide() {
     if (!selected) return;

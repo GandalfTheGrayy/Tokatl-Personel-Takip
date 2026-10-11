@@ -1,4 +1,4 @@
-const CACHE = "tokatli-next-gen-static-v4";
+const CACHE = "tokatli-next-gen-static-v5";
 self.addEventListener("install", (event) => {
   event.waitUntil(
     caches.open(CACHE).then((cache) => cache.addAll(["/", "/icon-192.png"])),

@@ -531,7 +531,10 @@ app.post(
     const category = await validateOutingCategory(x.kind, x.category);
     const now = new Date();
     const outing = await db.$transaction(async (tx) => {
-      await tx.$queryRaw`SELECT pg_advisory_xact_lock(hashtext(${req.user.id}))`;
+      // Prisma cannot deserialize PostgreSQL's `void` return type. Casting
+      // the ignored result keeps the transaction-scoped lock intact while
+      // giving the client a supported scalar type to decode.
+      await tx.$queryRaw`SELECT pg_advisory_xact_lock(hashtext(${req.user.id}))::text`;
       const open = await tx.outing.findFirst({
         where: {
           userId: req.user.id,
